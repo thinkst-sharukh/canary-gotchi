@@ -1,0 +1,90 @@
+services:
+  caddy:
+    restart: always
+    build:
+      context: ./caddy
+      dockerfile: ./caddy.dockerfile
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+      - ./caddy/Caddyfile.dev:/etc/caddy/Caddyfile
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - my_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./frontend.dockerfile
+      target: dev
+    restart: unless-stopped
+    # ports:
+    #   - '5173:5173' # we can remove this line because we are using caddy as a reverse proxy
+    volumes:
+      - /app/node_modules
+      - ./frontend:/app
+    depends_on:
+      - backend
+    networks:
+      - my_network
+    command: npm run dev -- --host
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ./backend.dockerfile
+      target: dev
+    restart: always
+    # ports:
+    #   - '8080:8080' # we can remove this line because we are using caddy as a reverse proxy
+    # depends_on:
+    #   - db
+    networks:
+      - my_network
+    volumes:
+      - ./backend:/app
+    environment:
+      PORT: ${PORT}
+      # DB_HOST: ${DB_HOST}
+      # DB_PORT: ${DB_PORT}
+      # DB_DATABASE: ${DB_DATABASE}
+      # DB_USERNAME: ${DB_USERNAME}
+      # DB_PASSWORD: ${DB_PASSWORD}
+      # DB_SCHEMA: ${DB_SCHEMA}
+
+  # db:
+  #   image: postgres:15
+  #   environment:
+  #     POSTGRES_DB: ${DB_DATABASE}
+  #     POSTGRES_USER: ${DB_USERNAME}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #   ports:
+  #     - '5432:5432'
+  #   volumes:
+  #     - postgres_db:/var/lib/postgresql/data
+  #     - ./dbshell:/docker-entrypoint-initdb.d/
+  #   networks:
+  #     - my_network
+
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: 123
+  #   ports:
+  #     - '5050:80'
+  #   networks:
+  #     - my_network
+
+volumes:
+  # postgres_db:
+  caddy_data:
+  caddy_config:
+networks:
+  my_network:
+    driver: bridge

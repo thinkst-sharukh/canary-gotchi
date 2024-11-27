@@ -1,0 +1,70 @@
+services:
+  caddy:
+    restart: always
+    build:
+      context: ./caddy
+      dockerfile: ./caddy.dockerfile
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - my_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./frontend.dockerfile
+      target: prod
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - my_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ./backend.dockerfile
+      target: prod
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - my_network
+    environment:
+      PORT: ${PORT}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SCHEMA: ${DB_SCHEMA}
+  
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+      - ./dbshell:/docker-entrypoint-initdb.d/
+    networks:
+      - my_network
+
+volumes:
+  postgres_db:
+  caddy_data:
+  caddy_config:
+networks:
+  my_network:
+    driver: bridge
+  

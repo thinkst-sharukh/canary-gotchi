@@ -16,10 +16,6 @@
           </svg>
         </span>
       </div>
-
-      <form @submit.prevent="verifySequence">
-        <Input placeholder="Enter your sequence" v-model="enteredSequence" />
-      </form>
     </div>
 
     <div class="mt-4">
@@ -44,10 +40,9 @@
 </template>
 
 <script lang="ts" setup>
-import Input from '@/components/Input.vue';
 import Layout from '@/components/Layout.vue';
 import { names } from '@/router';
-import { regenerateSequence, validateSequence } from '@/services/sequence';
+import { regenerateSequence } from '@/services/sequence';
 import { useGotchiStore } from '@/stores/gotchi';
 import { isAxiosError } from 'axios';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, } from 'vue';
@@ -58,7 +53,6 @@ const { gotchi } = useGotchiStore()
 const remainingSeconds = ref(0)
 const timer = ref()
 const router = useRouter()
-const enteredSequence = ref('')
 const sequence = ref(gotchi?.sequence)
 
 const min = computed(() => Math.floor(remainingSeconds.value / 60))
@@ -113,32 +107,6 @@ const regenerate = async () => {
       toast.error(error?.response?.data.error)
     } else {
       toast.error("Failed to regenerate sequence")
-    }
-  } finally {
-    toast.remove(loadingToastId)
-  }
-}
-
-const verifySequence = async () => {
-  if (!gotchi?.id) {
-    return;
-  }
-
-  let loadingToastId;
-  try {
-    toast.remove()
-    loadingToastId = toast.loading("Verifying sequence...")
-    await validateSequence({
-      id: gotchi.id,
-      sequence: enteredSequence.value
-    })
-
-    router.push({ name: names.verifiedSequence })
-  } catch (error) {
-    if (isAxiosError(error)) {
-      toast.error(error?.response?.data.error)
-    } else {
-      toast.error("Failed to verify sequence")
     }
   } finally {
     toast.remove(loadingToastId)

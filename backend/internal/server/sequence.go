@@ -3,6 +3,7 @@ package server
 import (
 	"backend/internal/models"
 	"backend/internal/utils"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -81,6 +82,17 @@ func (s *FiberServer) ValidateSequence(c *fiber.Ctx) error {
 	if rBody.Sequence != gotchi.Sequence.Sequence {
 		return c.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{
 			"error": "Please enter the correct Sequence",
+		})
+	}
+
+	gotchi.Sequence.Expires = time.Now()
+	gotchi.Verified = true
+
+	err = gotchi.Save(s.DB)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
+			"error": "Failed to save Gotchi",
 		})
 	}
 

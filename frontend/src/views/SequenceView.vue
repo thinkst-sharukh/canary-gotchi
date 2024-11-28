@@ -148,7 +148,6 @@ const verifySequence = async () => {
 onMounted(() => {
   if (gotchi?.id) {
     startTimer()
-    toast.success("Enrollment successful")
   } else {
     router.push({ name: names.home })
   }

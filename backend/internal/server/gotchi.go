@@ -3,11 +3,6 @@ package server
 import (
 	"backend/internal/models"
 	"backend/internal/utils"
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -34,56 +29,11 @@ func (s *FiberServer) VerifyAuthKeyHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Define the base URL
-	baseURL := "https://" + rBody.Hash + ".canary.tools/api/v1/ping"
+	_, err := utils.ValidateAuthToken(rBody.Hash, rBody.Token)
 
-	// Define the payload (query parameters)
-	params := url.Values{}
-	params.Add("auth_token", rBody.Token)
-
-	// Construct the full URL with query parameters
-	fullURL := fmt.Sprintf("%s?%s", baseURL, params.Encode())
-
-	// Make the GET request
-	resp, err := http.Get(fullURL)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
-			"error": err.Error(),
-		})
-	}
-	defer resp.Body.Close()
-
-	// Check the response status code
-	if resp.StatusCode != http.StatusOK {
-		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
-			"error": fmt.Sprintf("Error: received status code %d", resp.StatusCode),
-		})
-	}
-
-	// Read and print the response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
-			"error": err.Error(),
-		})
-	}
-
-	// Define a struct for the expected JSON response
-	type PingResponse struct {
-		Result string `json:"result"`
-	}
-
-	// Unmarshal the JSON response into the struct
-	var pingResponse PingResponse
-	if err := json.Unmarshal(body, &pingResponse); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
-			"error": err.Error(),
-		})
-	}
-
-	if pingResponse.Result != "success" {
 		return c.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{
-			"error": "Failed to authorize the token",
+			"error": err.Error(),
 		})
 	}
 
@@ -121,7 +71,7 @@ func (s *FiberServer) VerifyAuthKeyHandler(c *fiber.Ctx) error {
 	})
 }
 
-func (s *FiberServer) ExistingGotchiHandler(c *fiber.Ctx) error {
+func (s *FiberServer) GetGotchiHandler(c *fiber.Ctx) error {
 	id := c.Params("id")
 
 	uid, err := uuid.Parse(id)
@@ -139,7 +89,7 @@ func (s *FiberServer) ExistingGotchiHandler(c *fiber.Ctx) error {
 	gotchi, err = gotchi.GetWithSequence(s.DB)
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
+		return c.Status(fiber.StatusNotFound).JSON(map[string]interface{}{
 			"error": "Gotchi not found",
 		})
 	}
@@ -159,6 +109,76 @@ func (s *FiberServer) ExistingGotchiHandler(c *fiber.Ctx) error {
 		}
 
 		gotchi.Sequence = newSeq
+	}
+
+	return c.Status(fiber.StatusOK).JSON(map[string]interface{}{
+		"result": "success",
+		"data":   gotchi,
+	})
+}
+
+func (s *FiberServer) UpdateGotchiHandler(c *fiber.Ctx) error {
+	type requestBody struct {
+		Token string `json:"token"`
+		Hash  string `json:"hash"`
+	}
+	rBody := new(requestBody)
+
+	if err := c.BodyParser(rBody); err != err {
+		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
+			"err": err.Error(),
+		})
+	}
+
+	if rBody.Hash == "" || rBody.Token == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{
+			"error": "Domain Hash or Token Missing",
+		})
+	}
+
+	_, err := utils.ValidateAuthToken(rBody.Hash, rBody.Token)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	id := c.Params("id")
+
+	uid, err := uuid.Parse(id)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{
+			"error": "Gotchi ID is not valid",
+		})
+	}
+
+	gotchi := models.Gotchi{
+		ID: uid,
+	}
+
+	gotchi, err = gotchi.GetWithSequence(s.DB)
+
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(map[string]interface{}{
+			"error": "Gotchi not found",
+		})
+	}
+
+	if gotchi.Sequence.ID == uuid.Nil {
+		gotchi.Sequence.Sequence = utils.GenerateRandomSequence(5)
+	}
+
+	gotchi.Hash = rBody.Hash
+	gotchi.AuthToken = rBody.Token
+
+	err = gotchi.Save(s.DB)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
+			"error": "Failed to update gotchi",
+		})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(map[string]interface{}{

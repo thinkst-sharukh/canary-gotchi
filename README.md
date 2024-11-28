@@ -14,3 +14,5 @@ You can change the credentials in `docker-compose.dev.yml`
 
 docker compose up -d --build
 docker ps
+sudo docker logs --since=1h d73a57b07172
+docker ps

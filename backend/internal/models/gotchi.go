@@ -15,6 +15,7 @@ type Gotchi struct {
 	Hash      string    `json:"hash" gorm:"not null" validate:"required"`
 	AuthToken string    `json:"auth_token" gorm:"not null" validate:"required"`
 	Level     int       `json:"level" gorm:"not null"`
+	Verified  bool      `json:"verified" gorm:"not null;default:false"`
 	Sequence  Sequence  `json:"sequence" gorm:"foreignKey:GotchiID;constraint:OnDelete:CASCADE"`
 }
 
@@ -46,4 +47,10 @@ func (g *Gotchi) GetWithSequence(db *gorm.DB) (Gotchi, error) {
 	err := db.Preload("Sequence", "expires > ?", time.Now()).First(&g, "id = ?", g.ID).Error
 
 	return *g, err
+}
+
+func (g *Gotchi) Save(db *gorm.DB) error {
+	err := db.Save(&g).Error
+
+	return err
 }

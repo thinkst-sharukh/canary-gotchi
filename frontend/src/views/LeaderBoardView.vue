@@ -13,7 +13,7 @@
           </p>
 
         </div>
-        <div class="mt-7 sm:mt-12 mx-auto border border-gray-200 rounded-md shadow-sm p-8">
+        <div class="mt-7 sm:mt-12 mx-auto border border-gray-200 rounded-md shadow-sm md:p-8 p-4">
           <div class="space-y-2">
             <h2 class="font-medium text-lg">
               Leaderboard
@@ -23,7 +23,7 @@
             </p>
           </div>
 
-          <div class="mt-8 border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+          <div class="mt-8 border border-gray-200 rounded-lg shadow-sm overflow-auto">
             <table class="w-full">
               <thead>
                 <tr class="divide-x divide-gray-200">

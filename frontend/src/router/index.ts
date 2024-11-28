@@ -5,6 +5,7 @@ export const names = {
   enrollment: 'enrollment',
   sequence: 'sequence',
   verifiedSequence: 'verified-sequence',
+  leaderBoard: 'leader-board',
 }
 
 const router = createRouter({
@@ -38,6 +39,12 @@ const router = createRouter({
       name: names.verifiedSequence,
       component: () => import('../views/VerifiedView.vue'),
       meta: { title: 'Verified Sequence' },
+    },
+    {
+      path: '/' + names.leaderBoard,
+      name: names.leaderBoard,
+      component: () => import('../views/LeaderBoardView.vue'),
+      meta: { title: 'Leader Board' },
     },
   ],
 })

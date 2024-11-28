@@ -30,3 +30,7 @@ export const updateGotchi = ({ id, hash, token }: { id: string; hash: string; to
     token,
   })
 }
+
+export const getAllGotchi = () => {
+  return axios.get<{ data: IGotchi[] }>('/api/gotchis')
+}

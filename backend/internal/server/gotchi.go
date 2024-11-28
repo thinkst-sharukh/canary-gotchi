@@ -186,3 +186,18 @@ func (s *FiberServer) UpdateGotchiHandler(c *fiber.Ctx) error {
 		"data":   gotchi,
 	})
 }
+
+func (s *FiberServer) GetAllHandler(c *fiber.Ctx) error {
+	gotchis, err := models.GetAllGotchis(s.DB, "id", "name", "level", "verified")
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
+			"error": "Failed to get all gotchis",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(map[string]interface{}{
+		"result": "success",
+		"data":   gotchis,
+	})
+}

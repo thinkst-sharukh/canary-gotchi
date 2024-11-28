@@ -54,3 +54,17 @@ func (g *Gotchi) Save(db *gorm.DB) error {
 
 	return err
 }
+
+func GetAllGotchis(db *gorm.DB, columns ...string) ([]Gotchi, error) {
+	var gotchis []Gotchi
+
+	// Check if specific columns are provided
+	query := db
+	if len(columns) > 0 {
+		query = query.Select(columns)
+	}
+
+	err := query.Find(&gotchis).Error
+
+	return gotchis, err
+}

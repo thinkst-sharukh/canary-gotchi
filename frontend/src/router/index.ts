@@ -46,6 +46,13 @@ const router = createRouter({
       component: () => import('../views/LeaderBoardView.vue'),
       meta: { title: 'Leader Board' },
     },
+    // Catch-all route for 404
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('../views/HomeView.vue'),
+      meta: { title: 'Page Not Found' },
+    },
   ],
 })
 

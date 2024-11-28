@@ -50,39 +50,40 @@ services:
       - ./backend:/app
     environment:
       PORT: ${PORT}
-      # DB_HOST: ${DB_HOST}
-      # DB_PORT: ${DB_PORT}
-      # DB_DATABASE: ${DB_DATABASE}
-      # DB_USERNAME: ${DB_USERNAME}
-      # DB_PASSWORD: ${DB_PASSWORD}
-      # DB_SCHEMA: ${DB_SCHEMA}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SCHEMA: ${DB_SCHEMA}
+      ENVIRONMENT: ${ENVIRONMENT}
 
-  # db:
-  #   image: postgres:15
-  #   environment:
-  #     POSTGRES_DB: ${DB_DATABASE}
-  #     POSTGRES_USER: ${DB_USERNAME}
-  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
-  #   ports:
-  #     - '5432:5432'
-  #   volumes:
-  #     - postgres_db:/var/lib/postgresql/data
-  #     - ./dbshell:/docker-entrypoint-initdb.d/
-  #   networks:
-  #     - my_network
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+      - ./dbshell:/docker-entrypoint-initdb.d/
+    networks:
+      - my_network
 
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
-  #     PGADMIN_DEFAULT_PASSWORD: 123
-  #   ports:
-  #     - '5050:80'
-  #   networks:
-  #     - my_network
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: 123
+    ports:
+      - '5050:80'
+    networks:
+      - my_network
 
 volumes:
-  # postgres_db:
+  postgres_db:
   caddy_data:
   caddy_config:
 networks:

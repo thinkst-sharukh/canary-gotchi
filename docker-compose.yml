@@ -47,6 +47,7 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_SCHEMA: ${DB_SCHEMA}
+      ENVIRONMENT: ${ENVIRONMENT}
   
   db:
     image: postgres:15

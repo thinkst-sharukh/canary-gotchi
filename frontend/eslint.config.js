@@ -1,8 +1,7 @@
-import pluginVue, { rules } from 'eslint-plugin-vue'
+import pluginVue from 'eslint-plugin-vue'
 import vueTsEslintConfig from '@vue/eslint-config-typescript'
 import pluginVitest from '@vitest/eslint-plugin'
 import oxlint from 'eslint-plugin-oxlint'
-import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 
 export default [
   {
@@ -16,18 +15,28 @@ export default [
   },
 
   ...pluginVue.configs['flat/essential'],
-  ...vueTsEslintConfig({
-    extends: {
-      rules: {
-        'vue/multi-word-component-names': 'off'
-      }
-    }
-  }),
+  ...vueTsEslintConfig(),
   
   {
     ...pluginVitest.configs.recommended,
     files: ['src/**/__tests__/*'],
   },
   oxlint.configs['flat/recommended'],
-  skipFormatting,
+
+  // Add custom rules here
+  {
+    name: 'app/custom-rules',
+    rules: {
+      'vue/multi-word-component-names': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          vars: 'all',
+          varsIgnorePattern: '^_',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
 ]

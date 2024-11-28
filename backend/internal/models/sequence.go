@@ -25,7 +25,7 @@ func (s *Sequence) BeforeCreate(db *gorm.DB) (err error) {
 		return err
 	}
 
-	s.Expires = time.Now().Add(30 * time.Second)
+	s.Expires = time.Now().Add(60 * time.Second)
 
 	return nil
 }

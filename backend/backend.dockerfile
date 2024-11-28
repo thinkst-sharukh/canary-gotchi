@@ -31,7 +31,7 @@ RUN go mod download && go mod verify
 COPY . .
 
 # Build the Go app
-RUN CGO_ENABLED=0 go build -o /app/main .
+RUN CGO_ENABLED=0 go build -o /tmp/main .
 
 # Create a non-root user and switch to it
 RUN adduser -D -g '' appuser

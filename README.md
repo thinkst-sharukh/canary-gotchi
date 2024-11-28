@@ -12,3 +12,5 @@ Welcome to the Go-React-Postgres boilerplate! This repository provides a ready-t
 
 You can change the credentials in `docker-compose.dev.yml`
 
+docker compose up -d --build
+docker ps

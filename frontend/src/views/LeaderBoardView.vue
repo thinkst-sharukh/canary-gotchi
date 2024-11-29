@@ -4,14 +4,9 @@
     <div class="overflow-hidden size-full flex items-center">
       <div class="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-24 w-full">
         <div class="text-center">
-          <h1 class="text-4xl sm:text-6xl font-bold text-primary">
-            Canary Gotchi
-          </h1>
-
-          <p class="mt-3 text-gray-600">
-            Hows your Canary(A better tag line)
-          </p>
-
+          <div class="flex justify-center">
+            <Logo class="lg:w-[50%] md:w-[60%]" />
+          </div>
         </div>
         <div class="mt-7 sm:mt-12 mx-auto border border-gray-200 rounded-md shadow-sm md:p-8 p-4">
           <div class="space-y-2">
@@ -56,6 +51,7 @@
 </template>
 
 <script lang="ts" setup>
+import Logo from '@/components/Logo.vue';
 import { getAllGotchi } from '@/services/gotchi';
 import type { IGotchi } from '@/types';
 import { onMounted, ref } from 'vue';
